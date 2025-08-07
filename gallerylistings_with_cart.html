@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gallery Listings</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fdfdfd;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .art-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .art-card {
+      background-color: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      height: 200px;
+    }
+
+    .art-card:hover {
+      transform: scale(1.02);
+    }
+
+    .art-image {
+      height: 100%;
+      width: auto;
+      max-width: 40%;
+      object-fit: cover;
+    }
+
+    .art-info {
+      padding: 16px;
+      flex: 1;
+    }
+
+    .art-info h3 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .art-info p {
+      margin: 8px 0;
+      font-size: 16px;
+    }
+
+    /* Modal Styling */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      padding: 20px;
+      max-width: 800px;
+      width: 90%;
+      border-radius: 10px;
+      position: relative;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      animation: fadeIn 0.3s ease-in-out;
+      align-items: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-image {
+      width: 50%;
+      max-height: 500px;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
+    .modal-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .modal-details h2 {
+      margin: 0 0 10px;
+    }
+
+    .modal-details p {
+      margin: 6px 0;
+    }
+
+    .add-to-cart {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      align-self: flex-start;
+    }
+
+    .add-to-cart:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Gallery Listings</h1>
+
+  <div class="art-grid" id="gallery"></div>
+
+  <!-- Modal Popup -->
+  <div class="modal" id="modal">
+    <div class="modal-content" id="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <!-- Filled dynamically -->
+    </div>
+  </div>
+
+  <script>
+    const artworks = [
+      {
+        title: "Adrift",
+        artist: "Anahita Akhavan",
+        year: "2023",
+        price: "CAD 3,600.00",
+        image: "Artwork/Anahita Akhavan/Anahita Akhavan - Adrift.jpg",
+        description: "Oil on linen. 32 in. x 24 in."
+      },
+      {
+        title: "Dawn",
+        artist: "Anahita Akhavan",
+        year: "2023",
+        price: "CAD 1,200.00",
+        image: "Artwork/Anahita Akhavan/Anahita Akhavan - Dawn.jpg",
+        description: "Watercolour on paper, hand-cut collage framed in bleach maple with museum glass. 10 in. x 8 in."
+      },
+      {
+        title: "Mihrab",
+        artist: "Anahita Akhavan",
+        year: "2025",
+        price: "CAD 3,600.00",
+        image: "Artwork/Anahita Akhavan/Anahita Akhavan - Mihrab.jpg",
+        description: "Oil on canvas. 30 in. x 20 in."
+      },
+      {
+        title: "Falling Bloom",
+        artist: "Anahita Akhavan",
+        year: "2025",
+        price: "CAD 8,500.00",
+        image: "Artwork/Anahita Akhavan/Anahita Akhavan - Falling Bloom.jpg",
+        description: "Oil on linen. 72 in. x 48 in."
+      },
+      {
+        title: "Soaring",
+        artist: "Anahita Akhavan",
+        year: "2025",
+        price: "CAD 8,500.00",
+        image: "Artwork/Anahita Akhavan/Anahita Akhavan - Soaring.jpg",
+        description: "Oil on linen. 72 in. x 48 in."
+      },
+      {
+        title: "Mercurial",
+        artist: "Anahita Akhavan",
+        year: "2024",
+        price: "CAD 8,500.00",
+        image: "Artwork/Anahita Akhavan/Anahita Akhavan - Mercurial.jpg",
+        description: "Oil on linen. 60 in. x 48 in."
+      },
+      {
+        title: "The blue daffodils",
+        artist: "Zahra Ahmad Ali",
+        year: "2023",
+        price: "CAD 1,000.00",
+        image: "Artwork/Zahra Ahmad Ali/Zahra Ahmad Ali - The blue daffodils.jpg",
+        description: "Watercolour on canvas. 9 in. x 12 in."
+      },
+      {
+        title: "The peaceful ocean",
+        artist: "Zahra Ahmad Ali",
+        year: "2024",
+        price: "CAD 2,500.00",
+        image: "Artwork/Zahra Ahmad Ali/Zahra Ahmad Ali - The peaceful ocean.png",
+        description: "Watercolour on paper. 8 in. x 10 in."
+      },
+      {
+        title: "The lily of the valley",
+        artist: "Zahra Ahmad Ali",
+        year: "2024",
+        price: "CAD 3,000.00",
+        image: "Artwork/Zahra Ahmad Ali/Zahra Ahmad Ali - The lily of the valley.jpg",
+        description: "Watercolour on canvas. 9 in. x 12 in."
+      },
+      {
+        title: "40+",
+        artist: "Michael Adamson",
+        year: "2024",
+        price: "CAD 25,000.00",
+        image: "Artwork/Michael Adamson/Michael Adamson - 40+.jpg",
+        description: "Oil on canvas. 44 in. x 40 in."
+      },
+      {
+        title: "Canyon",
+        artist: "Michael Adamson",
+        year: "2024",
+        price: "CAD 5,000.00",
+        image: "Artwork/Michael Adamson/Michael Adamson - Canyon.jpg",
+        description: "Oil on canvas. 44 in. x 40 in."
+      },
+      {
+        title: "Radical",
+        artist: "Michael Adamson",
+        year: "2024",
+        price: "CAD 6,000.00",
+        image: "Artwork/Michael Adamson/Michael Adamson - Radical.jpg",
+        description: "Oil on canvas. 44 in. x 79.5 in."
+      },
+      {
+        title: "Far Shore",
+        artist: "Michael Adamson",
+        year: "2024",
+        price: "CAD 800.00",
+        image: "Artwork/Michael Adamson/Michael Adamson - Far Shore.jpg",
+        description: "Oil on canvas. 8 in. x 10 in."
+      },
+      {
+        title: "The Barbados Job",
+        artist: "Michael Adamson",
+        year: "2023",
+        price: "CAD 10,000.00",
+        image: "Artwork/Michael Adamson/Michael Adamson - The Barbados Job.jpg",
+        description: "Oil on canvas. 70 in. x 70 in."
+      },
+      {
+        title: "Azure Morning",
+        artist: "Michael Adamson",
+        year: "2024",
+        price: "CAD 2,000.00",
+        image: "Artwork/Michael Adamson/Michael Adamson - Azure Morning.jpg",
+        description: "Oil on canvas. 28 in. x 28 in."
+      },
+      {
+        title: "Before The Buffalo Chip",
+        artist: "Christi Belcourt",
+        year: "2005",
+        price: "CAD 1,200.00",
+        image: "Artwork/Christi Belcourt/Christi Belcourt - The Buffalo Chip.jpg",
+        description: "Acrylic on canvas. 26 in. x 17.68 in."
+      },
+      {
+        title: "The Broody Chicken at Nimkii Aazhibikong",
+        artist: "Christi Belcourt",
+        year: "2023",
+        price: "CAD 170.00",
+        image: "Artwork/Christi Belcourt/Christi Belcourt - The Broody Chicken at Nimkii Aazhibikong.jpg",
+        description: "Acrylic on canvas. 9 in. x 11 in."
+      },
+      {
+        title: "Bear Lodge",
+        artist: "Christi Belcourt",
+        year: "2023",
+        price: "CAD 300.00",
+        image: "Artwork/Christi Belcourt/Christi Belcourt - Bear Lodge.jpg",
+        description: "Acrylic on canvas. 20 in. x 16 in."
+      },
+      {
+        title: "The Earth Is My Government",
+        artist: "Christi Belcourt",
+        year: "2018",
+        price: "CAD 400.00",
+        image: "Artwork/Christi Belcourt/Christi Belcourt - The Earth Is My Government.jpg",
+        description: "Acrylic on canvas. 28 in. x 19.6 in."
+      },
+      {
+        title: "Bird Song",
+        artist: "Christi Belcourt",
+        year: "2018",
+        price: "CAD 750.00",
+        image: "Artwork/Christi Belcourt/Christi Belcourt - Bird Song.jpg",
+        description: "Acrylic on canvas. 28 in. x 19.6 in."
+      },
+      {
+        title: "The Dancing Queen #1",
+        artist: "Christi Belcourt",
+        year: "2018",
+        price: "CAD 240.00",
+        image: "Artwork/Christi Belcourt/Christi Belcourt - The Dancing Queen.jpg",
+        description: "Acrylic on canvas. 28 in. x 19.6 in."
+      }
+    ];
+
+    const galleryContainer = document.getElementById("gallery");
+    const modal = document.getElementById("modal");
+    const modalContent = document.getElementById("modal-content");
+
+    // Populate the gallery
+    artworks.forEach((art) => {
+      const card = document.createElement("div");
+      card.className = "art-card";
+      card.innerHTML = `
+        <img src="${art.image}" alt="${art.title}" class="art-image">
+        <div class="art-info">
+          <h3>${art.title}</h3>
+          <p>${art.artist}</p>
+          <p>${art.price}</p>
+        </div>
+      `;
+      card.onclick = () => openModal(art);
+      galleryContainer.appendChild(card);
+    });
+
+    // Open Modal
+    function openModal(art) {
+      modal.style.display = "flex";
+      modalContent.innerHTML = `
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <img src="${art.image}" alt="${art.title}" class="modal-image">
+        <div class="modal-details">
+          <h2>${art.title}</h2>
+          <p><strong>Artist:</strong> ${art.artist}</p>
+          <p><strong>Year:</strong> ${art.year}</p>
+          <p><strong>Description:</strong> ${art.description}</p>
+          <p><strong>Price:</strong> ${art.price}</p>
+          <button class="add-to-cart">Add to Cart</button>
+        </div>
+      `;
+    }
+
+    function closeModal() {
+      modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
+  </script>
+
+
+<!-- Cart Sidebar -->
+<div id="cart-sidebar" style="position:fixed; top:0; right:-400px; width:300px; height:100%; background:#fff; box-shadow:-2px 0 10px rgba(0,0,0,0.2); transition:right 0.3s ease; padding:20px; overflow-y:auto; z-index:200;">
+  <h2>Cart</h2>
+  <ul id="cart-items" style="list-style:none; padding:0;"></ul>
+  <form action="https://formspree.io/f/xjkowbno" method="POST" id="checkout-form">
+    <input type="hidden" name="cartData" id="cartData" />
+    <label>Name: <input type="text" name="name" required /></label><br/><br/>
+    <label>Email: <input type="email" name="email" required /></label><br/><br/>
+    <button type="submit" style="background:#333;color:white;padding:10px 20px;border:none;border-radius:4px;">Checkout</button>
+  </form>
+</div>
+
+<!-- Cart Toggle Button -->
+<button onclick="toggleCart()" style="position:fixed;top:20px;right:20px;z-index:201;background:#333;color:#fff;padding:10px 15px;border:none;border-radius:4px;">🛒 View Cart (<span id="cart-count">0</span>)</button>
+
+<script>
+  const cart = [];
+
+  function toggleCart() {
+    const sidebar = document.getElementById('cart-sidebar');
+    sidebar.style.right = sidebar.style.right === '0px' ? '-400px' : '0px';
+  }
+
+  function addToCart(item) {
+    cart.push(item);
+    updateCartDisplay();
+  }
+
+  function updateCartDisplay() {
+    const cartItems = document.getElementById('cart-items');
+    const cartCount = document.getElementById('cart-count');
+    cartItems.innerHTML = '';
+    cart.forEach((item, index) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<strong>${item.title}</strong> – ${item.price} <button onclick="removeFromCart(${index})">Remove</button>`;
+      cartItems.appendChild(li);
+    });
+    cartCount.innerText = cart.length;
+    document.getElementById('cartData').value = JSON.stringify(cart, null, 2);
+  }
+
+  function removeFromCart(index) {
+    cart.splice(index, 1);
+    updateCartDisplay();
+  }
+
+  // Hook into Add to Cart button dynamically
+  document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('add-to-cart')) {
+      const modalDetails = event.target.closest('.modal-details');
+      const title = modalDetails.querySelector('h2').innerText;
+      const price = modalDetails.querySelector('p:nth-of-type(4)').innerText.replace("Price: ", "");
+      addToCart({ title, price });
+    }
+  });
+</script>
+
+</body>
+</html>
